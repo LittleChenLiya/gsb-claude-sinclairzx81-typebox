@@ -45,6 +45,7 @@
     "5_meta": "docs/schema/5_meta.html",
     "6_intern": "docs/schema/6_intern.html",
     "7_compat": "docs/schema/7_compat.html",
+    "8_registry": "docs/schema/8_registry.html",
     "overview": "docs/schema/overview.html"
   },
   "script": {

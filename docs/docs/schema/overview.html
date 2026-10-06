@@ -29,3 +29,23 @@ const result = Vector.Parse({ x: 1, y: 0, z: 0 })  // const result: {
                                                    //   z: number
                                                    // }
 </code></pre>
+<h3>Registry</h3>
+<p>For cross-document <code>$ref</code> compilation, Schema offers an explicit <code>XRegistry</code>. Documents are registered by <code>$id</code>, references are bound before validators are generated, duplicate <code>$id</code> definitions conflict rather than overwrite, and each registry is isolated from process global state.</p>
+<pre><code class="language-typescript">import Schema from &#39;typebox/schema&#39;
+
+const Node = {
+  $id: &#39;Node&#39;,
+  type: &#39;object&#39;,
+  properties: {
+    id: { type: &#39;number&#39; },
+    children: { type: &#39;array&#39;, items: { $ref: &#39;Node&#39; } }
+  }
+}
+
+const registry = new Schema.XRegistry()
+registry.Register(Node, &#39;schemas/node.json&#39;)
+registry.Bind()                                     // links every $ref
+
+const validator = registry.Compile(&#39;Node&#39;)
+const ok = validator.Check({ id: 1, children: [{ id: 2 }] })
+</code></pre>

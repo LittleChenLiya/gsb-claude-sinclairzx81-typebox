@@ -1,0 +1,89 @@
+<h1>Schema.Registry</h1>
+<p>An explicit, sealed collection for schema reference compilation. Schemas are registered by <code>$id</code>, all <code>$ref</code> values are bound up front, and validators are only generated after binding succeeds.</p>
+<h2>Overview</h2>
+<p>The registry makes reference compilation explicit:</p>
+<ul>
+<li>A duplicate <code>$id</code> with a different definition is rejected; an identical re-registration is a no-op.</li>
+<li>A <code>$ref</code> only resolves against documents in the same collection or mappings explicitly authorized with <code>External(...)</code>. There is no process global cache, so two registries that happen to use the same <code>$id</code> can never leak into one another.</li>
+<li>Recursive references (self or mutual) are allowed and are followed lazily at validation time, so binding terminates without infinite expansion.</li>
+<li>Registered documents are deep cloned on entry. Mutating the caller object after registration never affects the sealed collection.</li>
+<li><code>Compile(id)</code> runs only after the document is fully bound; <code>TryCompile(id)</code> returns <code>undefined</code> for an unknown id or an unresolvable reference.</li>
+<li>The default <code>Schema.Compile(schema)</code> entry point is unchanged.</li>
+</ul>
+<h2>Example</h2>
+<pre><code class="language-typescript">import Schema from &#39;typebox/schema&#39;
+
+const Node = {
+  $id: &#39;Node&#39;,
+  type: &#39;object&#39;,
+  properties: {
+    id: { type: &#39;number&#39; },
+    children: { type: &#39;array&#39;, items: { $ref: &#39;Node&#39; } } // self reference
+  },
+  required: [&#39;id&#39;]
+}
+
+const TreeMeta = {
+  $id: &#39;TreeMeta&#39;,
+  type: &#39;object&#39;,
+  properties: { owner: { $ref: &#39;Tree&#39; } }                // mutual reference
+}
+
+const Tree = {
+  $id: &#39;Tree&#39;,
+  type: &#39;object&#39;,
+  properties: {
+    root: { $ref: &#39;Node&#39; },                               // cross document
+    meta: { $ref: &#39;TreeMeta&#39; }                            // cross document
+  }
+}
+
+const registry = new Schema.XRegistry()
+registry.Register(Node, &#39;schemas/node.json&#39;)               // source is retained
+registry.Register(TreeMeta, &#39;schemas/tree-meta.json&#39;)
+registry.Register(Tree, &#39;schemas/tree.json&#39;)
+
+registry.Bind()                                            // throws on unknown ref
+
+const validator = registry.Compile(&#39;Tree&#39;)
+const ok = validator.Check({
+  root: { id: 1, children: [{ id: 2 }] },
+  meta: { name: &#39;forest&#39;, owner: { root: { id: 9 } } }
+})
+</code></pre>
+<h2>Unknown References</h2>
+<p>Binding reports every reference that could not be resolved. No validator is produced for such a document.</p>
+<pre><code class="language-typescript">const registry = new Schema.XRegistry([{
+  $id: &#39;B&#39;,
+  properties: { x: { $ref: &#39;Missing&#39; } }
+}])
+
+const result = registry.Bind({ throw: false })
+result.ok            // false
+result.unresolved    // [{ id: &#39;B&#39;, ref: &#39;Missing&#39; }]
+
+registry.TryCompile(&#39;B&#39;)   // undefined: unknown ref, no validator
+</code></pre>
+<h2>External Mappings</h2>
+<p>References to documents outside the collection resolve only through mappings authorized explicitly with <code>External</code>.</p>
+<pre><code class="language-typescript">const remote = new Schema.XRegistry([{
+  $id: &#39;https://example.com/remote&#39;,
+  $defs: { Point: { type: &#39;object&#39;, properties: { x: { type: &#39;number&#39; } } } }
+}])
+
+const local = new Schema.XRegistry([{
+  $id: &#39;Local&#39;,
+  properties: { p: { $ref: &#39;https://example.com/remote#/$defs/Point&#39; } }
+}])
+
+local.External(&#39;remote-set&#39;, remote)                      // authorize
+local.Bind()                                             // ok
+</code></pre>
+<h2>Source Index</h2>
+<p><code>Index()</code> retains the schema index: every registered <code>$id</code> paired with the source label and sealed schema.</p>
+<pre><code class="language-typescript">for (const entry of registry.Index()) {
+  entry.id        // &#39;Node&#39;
+  entry.source    // &#39;schemas/node.json&#39;
+  entry.schema    // sealed deep clone
+}
+</code></pre>

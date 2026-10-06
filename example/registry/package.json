@@ -1,0 +1,9 @@
+{
+  "name": "typebox-registry-node-local",
+  "private": true,
+  "type": "module",
+  "description": "Local Node.js entry for the three-reference registry example. No npm install is required: Node 22.6+ / 24 transpiles TypeScript natively with --experimental-transform-types. The bare typebox/* specifiers are mapped with a small local ESM resolve hook (see node-local.mjs).",
+  "scripts": {
+    "start": "node --experimental-transform-types --import ./node-local.mjs index.ts"
+  }
+}
