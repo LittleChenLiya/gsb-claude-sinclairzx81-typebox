@@ -15,6 +15,7 @@
     "range": "deno run -A tasks.ts range",           // TypeScript Compiler Ranges
     "spec": "deno run -A tasks.ts spec",             // Refresh JSON Schema Spec
     "start": "deno run -A tasks.ts start",           // Run Example
+    "receipt": "node --experimental-transform-types example/convert-receipt/index.ts", // ConvertReceipt Three-State Example (Node)
     "syntax": "deno run -A tasks.ts syntax",         // Build Parsers
     "test": "deno run -A tasks.ts test",             // Test Project
     "challenge": "deno run -A tasks.ts challenge",   // Type Challenges
