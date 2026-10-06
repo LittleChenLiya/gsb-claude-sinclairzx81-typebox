@@ -1,0 +1,10 @@
+{
+  "name": "typebox-local",
+  "private": true,
+  "type": "module",
+  "description": "Local Node commands for this workspace. The published package is built from src via deno task build.",
+  "scripts": {
+    "example:manifest": "node --experimental-transform-types --disable-warning=ExperimentalWarning example/manifest/index.ts",
+    "test:manifest": "node --experimental-transform-types --disable-warning=ExperimentalWarning test/node/manifest.ts"
+  }
+}

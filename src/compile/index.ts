@@ -31,6 +31,7 @@ THE SOFTWARE.
 // ------------------------------------------------------------------
 export * from './code.ts'
 export * from './compile.ts'
+export * from './manifest.ts'
 export * from './validator.ts'
 
 // ------------------------------------------------------------------
@@ -38,6 +39,7 @@ export * from './validator.ts'
 // ------------------------------------------------------------------
 import { Code } from './code.ts'
 import { Compile } from './compile.ts'
+import { Manifest } from './manifest.ts'
 import { Validator } from './validator.ts'
-export { Code, Compile, Validator }
+export { Code, Compile, Manifest, Validator }
 export default Compile

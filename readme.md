@@ -192,6 +192,36 @@ const result = Vector.Parse({ x: 1, y: 0, z: 0 })  // const result: {
                                                    // }
 ```
 
+### Manifest
+
+The `Manifest` is an explicit manifest of schemas registered for reference compilation. Schemas are registered by `$id` into a collection where each `$ref` must resolve within the collection or an authorized external mapping; no global cache is consulted, so same-named identifiers in different manifests never interfere. Registering a duplicate `$id` with a different definition is rejected as a conflict. Recursive references are supported and bound without infinite expansion, and validators are only generated once every registered schema has been bound. Registered schemas are snapshotted and frozen, so later modification of the source objects does not affect the sealed collection. The default `Compile` entry is preserved for single-type compilation.
+
+```typescript
+import { Compile, Manifest } from 'typebox/compile'
+
+const A = Type.Object({ b: Type.Optional(Type.Ref('example:b')) }, { $id: 'example:a' })
+const B = Type.Object({ a: Type.Optional(Type.Ref('example:a')) }, { $id: 'example:b' })
+
+const manifest = new Manifest()
+
+manifest.Add(A).Add(B)                             // register the collection
+
+manifest.Index()                                   // schema index of registered schemas
+
+const validator = manifest.Compile('example:a')    // seals, binds, then compiles
+
+validator.Check({ b: { a: { b: { a: {} } } } })    // true (recursive binding)
+
+Compile(Type.String()).Check('hello')              // default Compile entry preserved
+```
+
+A three-reference example (A → B → C → A) is available at [example/manifest](./example/manifest/index.ts) and can be run locally with Node.
+
+```bash
+npm run example:manifest   # node --experimental-transform-types example/manifest/index.ts
+npm run test:manifest      # node --experimental-transform-types test/node/manifest.ts
+```
+
 ### Compatibility
 
 [JSON Schema Test Suite](https://github.com/json-schema-org/JSON-Schema-Test-Suite) | [JSON Schema Compliance Suite](https://github.com/sinclairzx81/json-schema-compliance-suite)
