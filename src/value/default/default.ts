@@ -31,6 +31,7 @@ THE SOFTWARE.
 import { Arguments } from '../../system/arguments/index.ts'
 import type { TProperties, TSchema } from '../../type/index.ts'
 import { FromType } from './from_type.ts'
+import { IsDefaultOptions, type TDefaultOptions } from './patch.ts'
 
 /**
  * Patches missing properties on the value using default annotations specified on the provided type. This 
@@ -42,17 +43,41 @@ export function Default(type: TSchema, value: unknown): unknown
  * Patches missing properties on the value using default annotations specified on the provided type. This 
  * function returns unknown so callers should Check the return value before use. This function mutates the 
  * provided value. If mutation is not wanted, you should Clone the value before passing to this function.
+ * 
+ * When the patches option is provided, this function appends a read-only TDefaultPatch entry for each 
+ * field it fills with a default. Each entry reports the RFC-6901 JSON Pointer path of the filled field 
+ * and a cloned copy of the assigned default value. Explicit null values are not considered missing and 
+ * are never reported.
+ */
+export function Default(type: TSchema, value: unknown, options: TDefaultOptions): unknown
+/**
+ * Patches missing properties on the value using default annotations specified on the provided type. This 
+ * function returns unknown so callers should Check the return value before use. This function mutates the 
+ * provided value. If mutation is not wanted, you should Clone the value before passing to this function.
  */
 export function Default(context: TProperties, type: TSchema, value: unknown): unknown
 /**
  * Patches missing properties on the value using default annotations specified on the provided type. This 
  * function returns unknown so callers should Check the return value before use. This function mutates the 
  * provided value. If mutation is not wanted, you should Clone the value before passing to this function.
+ * 
+ * When the patches option is provided, this function appends a read-only TDefaultPatch entry for each 
+ * field it fills with a default. Each entry reports the RFC-6901 JSON Pointer path of the filled field 
+ * and a cloned copy of the assigned default value. Explicit null values are not considered missing and 
+ * are never reported.
+ */
+export function Default(context: TProperties, type: TSchema, value: unknown, options: TDefaultOptions): unknown
+/**
+ * Patches missing properties on the value using default annotations specified on the provided type. This 
+ * function returns unknown so callers should Check the return value before use. This function mutates the 
+ * provided value. If mutation is not wanted, you should Clone the value before passing to this function.
  */
 export function Default(...args: unknown[]): unknown {
-  const [context, type, value] = Arguments.Match<[TProperties, TSchema, unknown]>(args, {
-    3: (context, type, value) => [context, type, value],
-    2: (type, value) => [{}, type, value],
+  const [context, type, value, options] = Arguments.Match<[TProperties, TSchema, unknown, TDefaultOptions | undefined]>(args, {
+    4: (context, type, value, options) => [context, type, value, options],
+    3: (...args) => IsDefaultOptions(args[2]) ? [{}, args[0], args[1], args[2]] : [args[0], args[1], args[2], undefined],
+    2: (type, value) => [{}, type, value, undefined],
   })
-  return FromType(context, type, value)
+  const patches = options?.patches
+  return FromType(context, type, value, patches === undefined ? undefined : { path: '', patches })
 }

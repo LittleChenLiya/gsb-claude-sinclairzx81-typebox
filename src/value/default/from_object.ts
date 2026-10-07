@@ -32,17 +32,18 @@ THE SOFTWARE.
 import { type TProperties, type TObject, IsOptional } from '../../type/index.ts'
 import { Guard } from '../../guard/index.ts'
 import { FromType } from './from_type.ts'
+import { type TPatchState, CreatePatchState } from './patch.ts'
 
 import { IsAdditionalProperties } from '../../schema/types/index.ts'
 
-export function FromObject(context: TProperties, type: TObject, value: unknown): unknown {
+export function FromObject(context: TProperties, type: TObject, value: unknown, patch?: TPatchState): unknown {
   if (!Guard.IsObject(value)) return value
 
   const knownPropertyKeys = Guard.Keys(type.properties)
   // Properties
   for (const key of knownPropertyKeys) {
     // Resolve Value for Property
-    const propertyValue = FromType(context, type.properties[key], value[key])
+    const propertyValue = FromType(context, type.properties[key], value[key], CreatePatchState(patch, key))
 
     // Ambiguious Undefined: If the value is undefined, the type is optional there's no default. ignore.
     const isUnassignableUndefined = Guard.IsUndefined(propertyValue) && (IsOptional(type.properties[key]) || !Guard.HasPropertyKey(type.properties[key], 'default') )
@@ -57,7 +58,7 @@ export function FromObject(context: TProperties, type: TObject, value: unknown):
   // AdditionalProperties
   for (const key of Guard.Keys(value)) {
     if (knownPropertyKeys.includes(key)) continue
-    value[key] = FromType(context, type.additionalProperties, value[key])
+    value[key] = FromType(context, type.additionalProperties, value[key], CreatePatchState(patch, key))
   }
   return value
 }

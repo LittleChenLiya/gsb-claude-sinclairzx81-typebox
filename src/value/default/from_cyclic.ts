@@ -31,7 +31,8 @@ THE SOFTWARE.
 
 import { type TProperties, type TCyclic, Ref } from '../../type/index.ts'
 import { FromType } from './from_type.ts'
+import type { TPatchState } from './patch.ts'
 
-export function FromCyclic(context: TProperties, type: TCyclic, value: unknown): unknown {
-  return FromType({ ...context, ...type.$defs }, Ref(type.$ref), value)
+export function FromCyclic(context: TProperties, type: TCyclic, value: unknown, patch?: TPatchState): unknown {
+  return FromType({ ...context, ...type.$defs }, Ref(type.$ref), value, patch)
 }

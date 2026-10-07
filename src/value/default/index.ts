@@ -27,3 +27,4 @@ THE SOFTWARE.
 ---------------------------------------------------------------------------*/
 
 export * from './default.ts'
+export type { TDefaultOptions, TDefaultPatch } from './patch.ts'

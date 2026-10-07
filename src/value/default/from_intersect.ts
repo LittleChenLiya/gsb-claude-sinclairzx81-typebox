@@ -31,9 +31,10 @@ THE SOFTWARE.
 
 import { type TProperties, type TIntersect, Evaluate, Instantiate } from '../../type/index.ts'
 import { FromType } from './from_type.ts'
+import type { TPatchState } from './patch.ts'
 
-export function FromIntersect(context: TProperties, type: TIntersect, value: unknown): unknown {
+export function FromIntersect(context: TProperties, type: TIntersect, value: unknown, patch?: TPatchState): unknown {
   const instantiated = Instantiate(context, type)
   const evaluated = Evaluate(instantiated)
-  return FromType(context, evaluated, value)
+  return FromType(context, evaluated, value, patch)
 }

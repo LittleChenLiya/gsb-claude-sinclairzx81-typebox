@@ -41,18 +41,22 @@ import { FromRecord } from './from_record.ts'
 import { FromRef } from './from_ref.ts'
 import { FromTuple } from './from_tuple.ts'
 import { FromUnion } from './from_union.ts'
+import { type TPatchState, PushPatch } from './patch.ts'
 
-export function FromType(context: T.TProperties, type: T.TSchema, value: unknown): unknown {
+export function FromType(context: T.TProperties, type: T.TSchema, value: unknown, patch?: TPatchState): unknown {
   const defaulted = IsDefault(type) ? FromDefault(type, value) : value
-  return (
-    T.IsArray(type) ? FromArray(context, type, defaulted) :
-    T.IsCyclic(type) ? FromCyclic(context, type, defaulted) :
-    T.IsIntersect(type) ? FromIntersect(context, type, defaulted) :
-    T.IsObject(type) ? FromObject(context, type, defaulted) :
-    T.IsRecord(type) ? FromRecord(context, type, defaulted) :
-    T.IsRef(type) ? FromRef(context, type, defaulted) :
-    T.IsTuple(type) ? FromTuple(context, type, defaulted) :
-    T.IsUnion(type) ? FromUnion(context, type, defaulted) :
+  const result = (
+    T.IsArray(type) ? FromArray(context, type, defaulted, patch) :
+    T.IsCyclic(type) ? FromCyclic(context, type, defaulted, patch) :
+    T.IsIntersect(type) ? FromIntersect(context, type, defaulted, patch) :
+    T.IsObject(type) ? FromObject(context, type, defaulted, patch) :
+    T.IsRecord(type) ? FromRecord(context, type, defaulted, patch) :
+    T.IsRef(type) ? FromRef(context, type, defaulted, patch) :
+    T.IsTuple(type) ? FromTuple(context, type, defaulted, patch) :
+    T.IsUnion(type) ? FromUnion(context, type, defaulted, patch) :
     defaulted
   )
+  // A default was applied only when FromDefault produced a new value. Record the 
+  // assignment after descending so the reported copy reflects the final value.
+  return patch !== undefined && defaulted !== value ? PushPatch(patch, result) : result
 }

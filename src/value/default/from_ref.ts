@@ -32,9 +32,12 @@ THE SOFTWARE.
 import type { TProperties, TRef } from '../../type/index.ts'
 import { Guard } from '../../guard/index.ts'
 import { FromType } from './from_type.ts'
+import type { TPatchState } from './patch.ts'
 
-export function FromRef(context: TProperties, type: TRef, value: unknown): unknown {
+export function FromRef(context: TProperties, type: TRef, value: unknown, patch?: TPatchState): unknown {
+  // the current path is retained such that defaults on referenced schemas are 
+  // reported at the location of the referencing value.
   return Guard.HasPropertyKey(context, type.$ref)
-    ? FromType(context, context[type.$ref], value)
+    ? FromType(context, context[type.$ref], value, patch)
     : value
 }

@@ -32,11 +32,12 @@ THE SOFTWARE.
 import type { TProperties, TArray } from '../../type/index.ts'
 import { Guard } from '../../guard/index.ts'
 import { FromType } from './from_type.ts'
+import { type TPatchState, CreatePatchState } from './patch.ts'
 
-export function FromArray(context: TProperties, type: TArray, value: unknown): unknown {
+export function FromArray(context: TProperties, type: TArray, value: unknown, patch?: TPatchState): unknown {
   if(!Guard.IsArray(value)) return value
   for (let i = 0; i < value.length; i++) {
-    value[i] = FromType(context, type.items, value[i])
+    value[i] = FromType(context, type.items, value[i], CreatePatchState(patch, i))
   }
   return value
 }
