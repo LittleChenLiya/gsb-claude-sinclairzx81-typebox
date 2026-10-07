@@ -16,3 +16,21 @@ const B = Value.Default(Pagination, { skip: 10 })   // const B = { skip: 10, tak
 
 const C = Value.Default(Pagination, { take: 100 })  // const C = { skip: 0, take: 100 }
 </code></pre>
+<h2>Patch Reporting</h2>
+<p>The DefaultWithPatches function provides the same defaulting behavior as Default, but additionally reports a read-only patch for each default value assigned. Each patch carries a JSON Pointer path locating the filled value (an empty string denotes the root value) as well as a cloned copy of the assigned default. Explicit null values are not considered missing and are never reported. Defaults resolved through referenced schemas are reported at the path of the value they were assigned to. Mutating a reported patch does not modify the patched value, and mutating the patched value does not modify the reported patch.</p>
+<pre><code class="language-typescript">const Pagination = Type.Object({ 
+  skip: Type.Optional(Type.Number({ default: 0 })), 
+  take: Type.Optional(Type.Number({ default: 10 })) 
+})
+
+const patches: Value.TDefaultPatch[] = []
+
+const A = Value.DefaultWithPatches(Pagination, {}, patches)
+
+// const A = { skip: 0, take: 10 }
+
+// const patches = [
+//   { path: '/skip', value: 0 },
+//   { path: '/take', value: 10 }
+// ]
+</code></pre>

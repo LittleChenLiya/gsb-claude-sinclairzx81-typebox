@@ -33,11 +33,17 @@ import type { TProperties, TUnion } from '../../type/index.ts'
 import { Check } from '../check/index.ts'
 import { Clone } from '../clone/index.ts'
 import { FromType } from './from_type.ts'
+import { Guard } from '../../guard/index.ts'
+import type { TDefaultPatch, TDefaultState } from './state.ts'
 
-export function FromUnion(context: TProperties, schema: TUnion, value: unknown): unknown {
+export function FromUnion(context: TProperties, schema: TUnion, value: unknown, state?: TDefaultState): unknown {
   for (const inner of schema.anyOf) {
-    const result = FromType(context, inner, Clone(value))
+    // collect patches tentatively: only patches for the matching variant are reported
+    const patches: TDefaultPatch[] = []
+    const innerState = Guard.IsUndefined(state) ? undefined : { path: state.path, patches }
+    const result = FromType(context, inner, Clone(value), innerState)
     if (Check(context, inner, result)) {
+      if (!Guard.IsUndefined(state)) state.patches.push(...patches)
       return result
     }
   }

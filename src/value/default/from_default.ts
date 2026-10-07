@@ -33,13 +33,19 @@ import { type XDefault } from '../../schema/index.ts'
 import type { TSchema } from '../../type/index.ts'
 import { Guard } from '../../guard/index.ts'
 import { Clone } from '../clone/index.ts'
+import { AddPatch, type TDefaultState } from './state.ts'
 
 // ------------------------------------------------------------------
 // FromDefault
 // ------------------------------------------------------------------
-export function FromDefault(type: TSchema & XDefault, value: unknown): unknown {
+export function FromDefault(type: TSchema & XDefault, value: unknown, state?: TDefaultState): unknown {
   // we only use defaults when values are undefined, exit early
   if(!Guard.IsUndefined(value)) return value
 
-  return Guard.IsFunction(type.default) ? type.default() : Clone(type.default)
+  const resolved = Guard.IsFunction(type.default) ? type.default() : Clone(type.default)
+  // report the assignment when patch reporting is enabled. the patch holds a
+  // cloned copy of the resolved value such that the patch cannot be used to
+  // reverse modify the patched value.
+  if(!Guard.IsUndefined(state)) AddPatch(state, resolved)
+  return resolved
 }

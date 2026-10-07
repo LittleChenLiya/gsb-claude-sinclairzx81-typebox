@@ -35,20 +35,21 @@ import { IsAdditionalProperties, IsDefault } from '../../schema/types/index.ts'
 import { Guard } from '../../guard/index.ts'
 import { FromDefault } from './from_default.ts'
 import { FromType } from './from_type.ts'
+import { PushPath, type TDefaultState } from './state.ts'
 
-export function FromRecord(context: TProperties, type: TRecord, value: unknown): unknown {
+export function FromRecord(context: TProperties, type: TRecord, value: unknown, state?: TDefaultState): unknown {
   if (!Guard.IsObject(value)) return value
   // PatternProperties
   const [recordKey, recordValue] = [new RegExp(RecordPattern(type)), RecordValue(type)]
   for (const key of Guard.Keys(value)) {
     if (!(recordKey.test(key) && IsDefault(recordValue))) continue
-    value[key] = FromType(context, recordValue, value[key])
+    value[key] = FromType(context, recordValue, value[key], PushPath(state, key))
   }
   // AdditionalProperties
   if (!IsAdditionalProperties(type)) return value
   for (const key of Guard.Keys(value)) {
     if (recordKey.test(key)) continue
-    value[key] = FromType(context, type.additionalProperties, value[key])
+    value[key] = FromType(context, type.additionalProperties, value[key], PushPath(state, key))
   }
   return value
 }

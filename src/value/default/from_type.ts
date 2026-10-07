@@ -41,18 +41,19 @@ import { FromRecord } from './from_record.ts'
 import { FromRef } from './from_ref.ts'
 import { FromTuple } from './from_tuple.ts'
 import { FromUnion } from './from_union.ts'
+import type { TDefaultState } from './state.ts'
 
-export function FromType(context: T.TProperties, type: T.TSchema, value: unknown): unknown {
-  const defaulted = IsDefault(type) ? FromDefault(type, value) : value
+export function FromType(context: T.TProperties, type: T.TSchema, value: unknown, state?: TDefaultState): unknown {
+  const defaulted = IsDefault(type) ? FromDefault(type, value, state) : value
   return (
-    T.IsArray(type) ? FromArray(context, type, defaulted) :
-    T.IsCyclic(type) ? FromCyclic(context, type, defaulted) :
-    T.IsIntersect(type) ? FromIntersect(context, type, defaulted) :
-    T.IsObject(type) ? FromObject(context, type, defaulted) :
-    T.IsRecord(type) ? FromRecord(context, type, defaulted) :
-    T.IsRef(type) ? FromRef(context, type, defaulted) :
-    T.IsTuple(type) ? FromTuple(context, type, defaulted) :
-    T.IsUnion(type) ? FromUnion(context, type, defaulted) :
+    T.IsArray(type) ? FromArray(context, type, defaulted, state) :
+    T.IsCyclic(type) ? FromCyclic(context, type, defaulted, state) :
+    T.IsIntersect(type) ? FromIntersect(context, type, defaulted, state) :
+    T.IsObject(type) ? FromObject(context, type, defaulted, state) :
+    T.IsRecord(type) ? FromRecord(context, type, defaulted, state) :
+    T.IsRef(type) ? FromRef(context, type, defaulted, state) :
+    T.IsTuple(type) ? FromTuple(context, type, defaulted, state) :
+    T.IsUnion(type) ? FromUnion(context, type, defaulted, state) :
     defaulted
   )
 }

@@ -32,12 +32,13 @@ THE SOFTWARE.
 import type { TProperties, TTuple } from '../../type/index.ts'
 import { Guard } from '../../guard/index.ts'
 import { FromType } from './from_type.ts'
+import { PushPath, type TDefaultState } from './state.ts'
 
-export function FromTuple(context: TProperties, schema: TTuple, value: unknown): unknown {
+export function FromTuple(context: TProperties, schema: TTuple, value: unknown, state?: TDefaultState): unknown {
   if (!Guard.IsArray(value)) return value
   const [items, max] = [schema.items, Math.max(schema.items.length, value.length)]
   for (let i = 0; i < max; i++) {
-    if (i < items.length) value[i] = FromType(context, items[i], value[i])
+    if (i < items.length) value[i] = FromType(context, items[i], value[i], PushPath(state, i))
   }
   return value
 }

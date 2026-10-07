@@ -31,7 +31,8 @@ THE SOFTWARE.
 
 import { type TProperties, type TCyclic, Ref } from '../../type/index.ts'
 import { FromType } from './from_type.ts'
+import type { TDefaultState } from './state.ts'
 
-export function FromCyclic(context: TProperties, type: TCyclic, value: unknown): unknown {
-  return FromType({ ...context, ...type.$defs }, Ref(type.$ref), value)
+export function FromCyclic(context: TProperties, type: TCyclic, value: unknown, state?: TDefaultState): unknown {
+  return FromType({ ...context, ...type.$defs }, Ref(type.$ref), value, state)
 }

@@ -32,9 +32,10 @@ THE SOFTWARE.
 import type { TProperties, TRef } from '../../type/index.ts'
 import { Guard } from '../../guard/index.ts'
 import { FromType } from './from_type.ts'
+import type { TDefaultState } from './state.ts'
 
-export function FromRef(context: TProperties, type: TRef, value: unknown): unknown {
+export function FromRef(context: TProperties, type: TRef, value: unknown, state?: TDefaultState): unknown {
   return Guard.HasPropertyKey(context, type.$ref)
-    ? FromType(context, context[type.$ref], value)
+    ? FromType(context, context[type.$ref], value, state)
     : value
 }
