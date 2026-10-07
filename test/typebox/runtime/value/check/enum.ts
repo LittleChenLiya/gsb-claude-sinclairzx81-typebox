@@ -52,3 +52,10 @@ Test('Should validate when enum has one or more string values', () => {
   Fail(T, 'Foo')
   Fail(T, 1)
 })
+Test('Should validate number 1 and string 1 as distinct StrictEnum values', () => {
+  const T = Type.StrictEnum([1, '1'])
+  Ok(T, 1)
+  Ok(T, '1')
+  Fail(T, 2)
+  Fail(T, 'x')
+})

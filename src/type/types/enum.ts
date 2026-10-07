@@ -33,6 +33,7 @@ import { Memory } from '../../system/memory/index.ts'
 import { type TSchema, type TSchemaOptions, IsKind } from './schema.ts'
 import { type TTypeScriptEnumLike, IsTypeScriptEnumLike } from '../engine/enum/typescript_enum_to_enum_values.ts'
 import { type TTypeScriptEnumToEnumValues, TypeScriptEnumToEnumValues } from '../engine/enum/typescript_enum_to_enum_values.ts'
+import { type TEnumStrictValues, EnumStrictEntries, StrictEnumValues } from '../engine/enum/enum_strict_values.ts'
 
 // ------------------------------------------------------------------
 // Static
@@ -68,6 +69,24 @@ export function Enum<Enum extends TTypeScriptEnumLike>(value: Enum, options?: TS
 /** Creates an Enum type. */
 export function Enum(value: readonly TEnumValue[] | TTypeScriptEnumLike, options?: TSchemaOptions): never {
   const values = IsTypeScriptEnumLike(value) ? TypeScriptEnumToEnumValues(value) : value
+  return Memory.Create({ '~kind': 'Enum' }, { enum: values }, options) as never
+}
+// ------------------------------------------------------------------
+// StrictEnum
+// ------------------------------------------------------------------
+/**
+ * Creates an Enum type in strict dedup mode. Values are compared by their
+ * actual runtime types, so the number 1 and the string '1' are treated as
+ * distinct values. Invalid (non string or number) values and duplicates cause
+ * a StrictEnumValuesError, which carries the sources of the duplicates, and
+ * no schema is returned.
+ */
+export function StrictEnum<Values extends TEnumValue[]>(values: readonly [...Values], options?: TSchemaOptions): TEnum<TEnumStrictValues<Values>>
+/** Creates a strict Enum type from a TypeScript enum declaration. */
+export function StrictEnum<Enum extends TTypeScriptEnumLike>(value: Enum, options?: TSchemaOptions): TEnum<TEnumStrictValues<TTypeScriptEnumToEnumValues<Enum>>>
+/** Creates an Enum type in strict dedup mode. */
+export function StrictEnum(value: readonly TEnumValue[] | TTypeScriptEnumLike, options?: TSchemaOptions): never {
+  const values = StrictEnumValues(EnumStrictEntries(value))
   return Memory.Create({ '~kind': 'Enum' }, { enum: values }, options) as never
 }
 // ------------------------------------------------------------------

@@ -1,0 +1,22 @@
+ok   - Type.Enum: Should not guard EnumValue
+ok   - Type.Enum: Should not guard EnumValue
+ok   - Type.Enum: Should not guard EnumValue
+ok   - Type.Enum: Should not guard Enum
+ok   - Type.Enum: Should Create Enum 1
+ok   - Type.Enum: Should Create Enum with options
+ok   - Type.Enum: Should StrictEnum distinguish number 1 from string 1
+ok   - Type.Enum: Should StrictEnum reject number duplicates with sources
+ok   - Type.Enum: Should StrictEnum reject string duplicates with sources
+ok   - Type.Enum: Should StrictEnum reject TypeScript enum aliases with member sources
+ok   - Type.Enum: Should StrictEnum accept a legal TypeScript enum
+ok   - Type.Enum: Should StrictEnum reject invalid values and return no schema
+ok   - Type.Enum: Should keep duplicate values on default Enum (regression)
+ok   - Type.Enum: Should keep aliased members on default TypeScript Enum (regression)
+ok   - Value.Check.Enum: Should validate when emum uses default numeric values
+ok   - Value.Check.Enum: Should not validate when given enum values are not numeric
+ok   - Value.Check.Enum: Should validate when emum has defined string values
+ok   - Value.Check.Enum: Should not validate when emum has defined string values and user passes numeric
+ok   - Value.Check.Enum: Should validate when enum has one or more string values
+ok   - Value.Check.Enum: Should validate number 1 and string 1 as distinct StrictEnum values
+
+20 passed, 0 failed, 20 total

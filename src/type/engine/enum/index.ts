@@ -26,4 +26,5 @@ THE SOFTWARE.
 
 ---------------------------------------------------------------------------*/
 
+export * from './enum_strict_values.ts'
 export * from './typescript_enum_to_enum_values.ts'

@@ -1,0 +1,33 @@
+
+== number 1 vs string 1 ==
+schema: {"enum":[1,"1"]}
+Value.Check(1)   = true
+Value.Check('1') = true
+Value.Check(2)   = false
+
+== duplicate number value ==
+StrictEnum values are invalid:
+  - duplicate value 1 (number) at [2]; first occurred at [0]
+
+== duplicate string value ==
+StrictEnum values are invalid:
+  - duplicate value "a" at [1]; first occurred at [0]
+
+== aliased TypeScript enum (illegal in strict mode) ==
+StrictEnum values are invalid:
+  - duplicate value 1 (number) at B ([1]); first occurred at A ([0])
+
+== legal TypeScript enum ==
+schema: {"enum":[0,"bar"]}
+Value.Check(0)    = true
+Value.Check('bar')= true
+Value.Check('Foo')= false
+
+== invalid values produce no schema ==
+StrictEnum values are invalid:
+  - value [object Object] (object) at [1] is not a string or number
+schema produced: no-schema
+
+== default Enum output (compatibility regression) ==
+Enum([1, 1, "1"]): {"enum":[1,1,"1"]}
+Enum(Alias):       {"enum":[1,1]}

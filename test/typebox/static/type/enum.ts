@@ -190,3 +190,31 @@ import { Assert } from 'test'
   Assert.IsExtends<T, E>(true)
   Assert.IsExtendsMutual<T, null>(false)
 }
+// ------------------------------------------------------------------
+// StrictEnum
+// ------------------------------------------------------------------
+{
+  // number 1 and string '1' remain distinct; duplicate number 1 collapses
+  const T = Type.StrictEnum([1, '1', 1])
+  type T = Static<typeof T>
+  Assert.IsExtendsMutual<T, 1 | '1'>(true)
+  Assert.IsExtendsMutual<T, 2>(false)
+}
+{
+  // duplicate string values collapse
+  const T = Type.StrictEnum(['a', 'a', 'b'])
+  type T = Static<typeof T>
+  Assert.IsExtendsMutual<T, 'a' | 'b'>(true)
+}
+{
+  // legal TypeScript enum matches the default Enum static output
+  enum E {
+    A,
+    B = 'b'
+  }
+  const T = Type.StrictEnum(E)
+  const U = Type.Enum(E)
+  type T = Static<typeof T>
+  type U = Static<typeof U>
+  Assert.IsExtendsMutual<T, U>(true)
+}
